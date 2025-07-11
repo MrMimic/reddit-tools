@@ -1,34 +1,20 @@
 # reddit-tools
 
 
-## brave_plugin
+## Install all services
 
-Add a .env file in the folder
+Add a .env file in each of the folders
 
 ```bash
 OPENAI_API_KEY=XXXXXXXXXXXXX
 OPENAI_MODEL=gpt-3.5-turbo
 ```
 
-To run this service, define `~/.config/systemd/user/tldr-reddit.service`:
+Then, run `bash setup.sh`.
 
-```bash
-[Unit]
-Description=TLDR Reddit Flask Backend
+You can then go to `brave://extensions/`, hit "Load unpack" twice, one selecting each of the following.
 
-[Service]
-WorkingDirectory=<PATH_TO_THIS_FOLDER>
-ExecStart=<PATH_TO>/.venv/bin/python3 <PATH_TO_THIS_FOLDER>/app.py
-Restart=always
+## Description
 
-[Install]
-WantedBy=default.target
-```
-
-Then run:
-
-```bash
-systemctl --user daemon-reload
-systemctl --user enable tldr-reddit
-systemctl --user start tldr-reddit
-```
+- `reddit_profiler`: A Chrome extension that fetches and displays Reddit user profiles, based on their post history and comments.
+- `tldr_reddit`: A Flask backend service that provides a summary of Reddit posts and comments, and provide a quite mean answer for fun.
