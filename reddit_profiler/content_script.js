@@ -4,9 +4,14 @@
     const match = window.location.href.match(/reddit.com\/user\/([^\/]+)\/?$/);
     if (match) {
       const username = match[1];
-      console.log('[Reddit Profiler] Profil détecté:', username);
       chrome.runtime.sendMessage({type: 'checkCache', username}, (resp) => {
-        console.log('[Reddit Profiler] Message checkCache envoyé, réponse:', resp);
+        // L'icône sera verte si le profil est en cache (géré par le background)
+        // Sinon elle reste rouge
+        if (resp && resp.cached) {
+          console.log('[Reddit Profiler] Profil en cache, icône verte');
+        } else {
+          console.log('[Reddit Profiler] Profil pas en cache, icône rouge');
+        }
       });
     } else {
       chrome.runtime.sendMessage({type: 'setIcon', icon: 'red.png'}, (resp) => {

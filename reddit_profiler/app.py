@@ -150,7 +150,7 @@ def profile() -> str:
     reddit_text = fetch_reddit_data(username)
     prompt = (
         "Voici les posts et commentaires d'un utilisateur Reddit. Fais un profil complet"
-        "(lieu de vie,orientation sexuelle, genre, métier, orientation politique, intérêts, loisirs, hobbies, envies, plans futurs, etc)"
+        "(lieu de vie, age, genre, métier, orientation politique, intérêts, loisirs, orientation sexuelle, hobbies, envies, plans futurs, etc)"
         "Structure ta réponse de la manière suivante : "
         "Lieu de vie: <lieu_de_vie>\nGenre: <genre>\nMétier: <métier>\n... etc"
         "\n\n" + reddit_text
@@ -169,6 +169,22 @@ def profile() -> str:
     except Exception as e:
         logging.error("OpenAI error: %s", e)
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/profile/check", methods=["POST"])
+def profile_check():
+    """
+    Endpoint pour vérifier si le profil d'un utilisateur Reddit est en cache.
+    Expects a JSON payload with "username".
+    Returns:
+        { cached: true/false }
+    """
+    data = request.json
+    username = data.get("username", "")
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    cache = load_cache()
+    return jsonify({"cached": username in cache})
 
 
 if __name__ == "__main__":

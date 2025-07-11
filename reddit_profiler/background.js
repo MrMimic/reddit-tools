@@ -25,8 +25,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({status: 'ok'});
   }
   if (request.type === 'checkCache') {
-    // Par défaut, on met l'icône rouge
     const tabId = sender.tab && sender.tab.id;
+    // Par défaut, icône rouge
     if (tabId) {
       setIconForTab('red.png', tabId);
     } else {
@@ -34,16 +34,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (tabs[0]) setIconForTab('red.png', tabs[0].id);
       });
     }
-    // Puis on vérifie le cache
-    fetch('http://localhost:5001/profile', {
+    // Vérifie juste le cache, ne génère jamais le profil
+    fetch('http://localhost:5001/profile/check', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: request.username })
     })
     .then(r => r.json())
     .then(response => {
-      if (response.profile && response.profile.startsWith('[CACHE]')) {
-        // Si profil en cache, on met l'icône verte
+      if (response.cached) {
+        // Profil en cache, icône verte
         if (tabId) {
           setIconForTab('green.png', tabId);
         } else {
@@ -52,6 +52,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           });
         }
       }
+      sendResponse({cached: response.cached});
     });
+    return true;
   }
 });
