@@ -12,7 +12,7 @@ OPENAI_MODEL=gpt-3.5-turbo
 
 Then, run `bash setup.sh`.
 
-You can then go to `brave://extensions/`, hit "Load unpack" twice, one selecting each of the following.
+You can then go to `brave://extensions/`, hit "Load unpack" twice, one selecting each of the following. Only tested on Brave and Ubuntu 22.04.
 
 ## Description
 
