@@ -28,10 +28,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Par défaut, on met l'icône rouge
     const tabId = sender.tab && sender.tab.id;
     if (tabId) {
-      setIconForTab('red-16.png', tabId);
+      setIconForTab('red.png', tabId);
     } else {
       chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        if (tabs[0]) setIconForTab('red-16.png', tabs[0].id);
+        if (tabs[0]) setIconForTab('red.png', tabs[0].id);
       });
     }
     // Puis on vérifie le cache
@@ -45,10 +45,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (response.profile && response.profile.startsWith('[CACHE]')) {
         // Si profil en cache, on met l'icône verte
         if (tabId) {
-          setIconForTab('green-16.png', tabId);
+          setIconForTab('green.png', tabId);
         } else {
           chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            if (tabs[0]) setIconForTab('green-16.png', tabs[0].id);
+            if (tabs[0]) setIconForTab('green.png', tabs[0].id);
           });
         }
       }

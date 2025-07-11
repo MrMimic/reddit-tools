@@ -9,9 +9,8 @@
         console.log('[Reddit Profiler] Message checkCache envoyé, réponse:', resp);
       });
     } else {
-      console.log('[Reddit Profiler] Pas une page profil Reddit, icône rouge');
-      chrome.runtime.sendMessage({type: 'setIcon', icon: 'red-16.png'}, (resp) => {
-        console.log('[Reddit Profiler] Message setIcon envoyé, réponse:', resp);
+      chrome.runtime.sendMessage({type: 'setIcon', icon: 'red.png'}, (resp) => {
+        console.log('[Reddit Profiler] Icône rouge (hors profil)', resp);
       });
     }
   }
