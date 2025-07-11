@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+import datetime
 
 import requests
 from dotenv import load_dotenv
@@ -12,6 +13,8 @@ from openai import OpenAI
 logging.basicConfig(level=logging.INFO)
 
 CACHE_FILE = "cache.json"
+MAX_COMMENTS = 75
+MAX_POSTS = 10
 
 
 def load_cache() -> dict:
@@ -71,18 +74,20 @@ app = Flask(__name__)
 CORS(app)
 
 
-def fetch_reddit_data(username) -> str:
+def fetch_reddit_data(username, max_comments: int = MAX_COMMENTS, max_posts: int = MAX_POSTS) -> str:
     """Fetches the latest comments and posts from a Reddit user.
 
     Args:
         username (str): The Reddit username to fetch data for.
+        max_comment (int): Maximum number of comments to fetch.
+        max_posts (int): Maximum number of posts to fetch.
 
     Returns:
         str: A formatted string containing the user's comments and posts.
     """
     headers = {"User-Agent": "Mozilla/5.0"}
-    comments_url = f"https://www.reddit.com/user/{username}/comments.json?limit=50"
-    posts_url = f"https://www.reddit.com/user/{username}/submitted.json?limit=10"
+    comments_url = f"https://www.reddit.com/user/{username}/comments.json?limit={max_comments}"
+    posts_url = f"https://www.reddit.com/user/{username}/submitted.json?limit={max_posts}"
     comments, posts = [], []
     try:
         c_resp = requests.get(comments_url, headers=headers, timeout=10)
@@ -97,7 +102,8 @@ def fetch_reddit_data(username) -> str:
                     .strip()
                 )
                 subreddit = c["data"].get("subreddit", "")
-                comments.append(f"{subreddit}: {body}")
+                if len(body) > 30:
+                    comments.append(f"{subreddit}: {body}")
         p_resp = requests.get(posts_url, headers=headers, timeout=10)
         if p_resp.status_code == 200:
             p_json = p_resp.json()
@@ -120,8 +126,12 @@ def fetch_reddit_data(username) -> str:
                 posts.append(f"{subreddit}: {title} - {selftext}")
     except Exception as e:
         logging.error("Error fetching Reddit data: %s", e)
-    txt = "Commentaires:\n" + "\n".join(comments) + "\n\nPosts:\n" + "\n".join(posts)
-    return txt
+    logging.info("Fetched %d comments and %d posts for user %s", len(comments), len(posts), username)
+    if len(comments) > 10:
+        txt = "Commentaires:\n" + "\n".join(comments) + "\n\nPosts:\n" + "\n".join(posts)
+        return txt
+    else:
+        return None
 
 
 @app.route("/profile", methods=["POST"])
@@ -135,6 +145,8 @@ def profile() -> str:
     """
     data = request.json
     username = data.get("username", "")
+    max_comments = data.get("max_comments", MAX_COMMENTS)
+    max_posts = data.get("max_posts", MAX_POSTS)
     force = data.get("force", False)
     if not username:
         return jsonify({"error": "Missing username"}), 400
@@ -147,10 +159,12 @@ def profile() -> str:
     if username in cache:
         logging.info(f"Profil pour {username} chargé depuis le cache.")
         return jsonify({"profile": f"[CACHE] {cache[username]}"})
-    reddit_text = fetch_reddit_data(username)
+    reddit_text = fetch_reddit_data(username, max_comments=max_comments, max_posts=max_posts)
+    if not reddit_text:
+        return jsonify({"error": "Pas assez de data pour ce user."}), 404
     prompt = (
         "Voici les posts et commentaires d'un utilisateur Reddit. Fais un profil complet"
-        "(lieu de vie, age, genre, métier, orientation politique, intérêts, loisirs, orientation sexuelle, hobbies, envies, plans futurs, etc)"
+        "(lieu de vie, age, genre, métier, orientation politique, intérêts, loisirs/hobbies, orientation sexuelle, peurs/angoisses, envies, plans futurs, etc)"
         "Structure ta réponse de la manière suivante : "
         "Lieu de vie: <lieu_de_vie>\nGenre: <genre>\nMétier: <métier>\n... etc"
         "\n\n" + reddit_text
@@ -163,6 +177,8 @@ def profile() -> str:
         )
         result = resp.choices[0].message.content
         result = remove_emojis(result)
+        today = datetime.date.today().strftime("%Y-%m-%d")
+        result = f"{result}\nDate: {today}"
         cache[username] = result
         save_cache(cache)
         return jsonify({"profile": result})
