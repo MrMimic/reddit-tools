@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "tldr-reddit",
+    "version": "1.0",
+    "description": "Summarize Reddit posts and generate answers using OpenAI.",
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://www.reddit.com/*"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icon.png",
+            "48": "icon.png",
+            "128": "icon.png"
+        }
+    }
+}
