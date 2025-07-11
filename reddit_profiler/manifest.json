@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Reddit Profiler",
+  "version": "1.0",
+  "description": "Profile Reddit users using GPT-3.5-turbo based on their posts and comments.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://www.reddit.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "red.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+    "icons": {
+    "16": "red.png",
+    "48": "red.png",
+    "128": "red.png"
+    },
+  "content_scripts": [
+    {
+      "matches": ["https://www.reddit.com/*"],
+      "js": ["content_script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

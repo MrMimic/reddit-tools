@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Reddit Profiler</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 600px;
+      min-height: 400px;
+      margin: 0;
+      padding: 20px 24px 20px 24px;
+      background: #23272f;
+      color: #e6e6e6;
+      box-sizing: border-box;
+    }
+    h1 {
+      color: #f3f3f3;
+      margin-bottom: 10px;
+    }
+    h2 {
+      margin-top: 16px;
+      margin-bottom: 4px;
+      font-size: 1.35em;
+      color: #e6e6e6;
+    }
+    #profile {
+      background: #181b20;
+      color: #f3f3f3;
+      border: 1px solid #444a57;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 180px;
+      margin-bottom: 10px;
+      font-size: 1.15em;
+      box-sizing: border-box;
+      white-space: pre-wrap;
+    }
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    button {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 1.13em;
+      background: linear-gradient(90deg, #353a40 0%, #23272f 100%);
+      color: #f3f3f3;
+      border: 1px solid #444a57;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+      cursor: pointer;
+      transition: background 0.2s, border 0.2s, color 0.2s;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #444a57 0%, #23272f 100%);
+      color: #fff;
+      border: 1.5px solid #0077ff;
+    }
+    #loading {
+      color: #b0b0b0;
+      margin-bottom: 10px;
+    }
+    .force-checkbox-label {
+      display: flex;
+      align-items: center;
+      font-size: 1.08em;
+      color: #b0b0b0;
+      cursor: pointer;
+      user-select: none;
+      gap: 4px;
+    }
+    input[type="checkbox"] {
+      accent-color: #0077ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reddit Profiler</h1>
+  <div class="section">
+    <h2>Generated profile</h2>
+    <div id="profile"></div>
+  </div>
+  <div class="action-row">
+    <button id="profileBtn">Generate Profile</button>
+    <label class="force-checkbox-label" for="force-checkbox">
+      <input type="checkbox" id="force-checkbox" />
+      Force
+    </label>
+    <div id="loading" style="display:none;">Loading...</div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

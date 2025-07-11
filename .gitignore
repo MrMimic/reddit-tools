@@ -1,6 +1,10 @@
 # Specific
-brave-plugin/cache.json
-brave_plugin/logs.txt
+*.service
+tldr_reddit/cache.json
+tldr_reddit/logs.txt
+reddit_profiler/cache.json
+reddit_profiler/logs.txt
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
