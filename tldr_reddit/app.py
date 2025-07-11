@@ -1,13 +1,13 @@
+import json
 import logging
 import os
-import json
 import re
 
 import requests
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from openai import OpenAI
-from dotenv import load_dotenv
 
 log_file = os.path.join(os.path.dirname(__file__), "logs.txt")
 logging.basicConfig(

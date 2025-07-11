@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 
 import requests
 from dotenv import load_dotenv
@@ -13,7 +14,13 @@ logging.basicConfig(level=logging.INFO)
 CACHE_FILE = "cache.json"
 
 
-def load_cache():
+def load_cache() -> dict:
+    """Load the cache from the JSON file.
+    If the file does not exist, create an empty cache.
+
+    Returns:
+        dict: The cache dictionary.
+    """
     if not os.path.exists(CACHE_FILE):
         with open(CACHE_FILE, "w", encoding="utf-8") as f:
             json.dump({}, f, ensure_ascii=False, indent=2)
@@ -21,13 +28,33 @@ def load_cache():
     with open(CACHE_FILE, "r", encoding="utf-8") as f:
         try:
             return json.load(f)
-        except Exception:
+        except Exception as e:
+            logging.error("Error loading cache: %s", e)
             return {}
 
 
-def save_cache(cache):
+def save_cache(cache) -> None:
+    """Save the cache to the JSON file."""
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache, f, ensure_ascii=False, indent=2)
+
+
+def remove_emojis(text: str) -> str:
+    """Remove emojis from the text."""
+    if not text:
+        return ""
+    emoji_pattern = re.compile(
+        "["
+        "\U0001f600-\U0001f64f"  # emoticons
+        "\U0001f300-\U0001f5ff"  # symbols & pictographs
+        "\U0001f680-\U0001f6ff"  # transport & map symbols
+        "\U0001f1e0-\U0001f1ff"  # flags (iOS)
+        "\U00002700-\U000027bf"  # Dingbats
+        "\U000024c2-\U0001f251"  # Enclosed characters
+        "]+",
+        flags=re.UNICODE,
+    )
+    return emoji_pattern.sub(r"", text)
 
 
 load_dotenv()
@@ -44,7 +71,15 @@ app = Flask(__name__)
 CORS(app)
 
 
-def fetch_reddit_data(username):
+def fetch_reddit_data(username) -> str:
+    """Fetches the latest comments and posts from a Reddit user.
+
+    Args:
+        username (str): The Reddit username to fetch data for.
+
+    Returns:
+        str: A formatted string containing the user's comments and posts.
+    """
     headers = {"User-Agent": "Mozilla/5.0"}
     comments_url = f"https://www.reddit.com/user/{username}/comments.json?limit=50"
     posts_url = f"https://www.reddit.com/user/{username}/submitted.json?limit=10"
@@ -90,7 +125,14 @@ def fetch_reddit_data(username):
 
 
 @app.route("/profile", methods=["POST"])
-def profile():
+def profile() -> str:
+    """
+    Endpoint to generate a Reddit user profile based on their comments and posts.
+    Expects a JSON payload with "username" and optional "force" to clear cache.
+
+    Returns:
+        str: A JSON response containing the generated profile or an error message.
+    """
     data = request.json
     username = data.get("username", "")
     force = data.get("force", False)
@@ -120,6 +162,7 @@ def profile():
             max_tokens=1024,
         )
         result = resp.choices[0].message.content
+        result = remove_emojis(result)
         cache[username] = result
         save_cache(cache)
         return jsonify({"profile": result})
